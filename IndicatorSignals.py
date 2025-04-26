@@ -47,6 +47,11 @@ class IndicatorSignals:
         long_ma = SMAIndicator(self.price_data['Close'], window=long_window).sma_indicator()
         return (short_ma > long_ma).astype(int)
 
+    def generate_ema_cross_signal(self, short_window=10, long_window=50):
+        short_ema = EMAIndicator(self.price_data['Close'], window=short_window).ema_indicator()
+        long_ema = EMAIndicator(self.price_data['Close'], window=long_window).ema_indicator()
+        return (short_ema > long_ema).astype(int)
+
     def generate_rsi_signal(self, rsi_length=14):
         rsi = RSIIndicator(self.price_data['Close'], window=rsi_length).rsi()
         return (rsi < 30).astype(int)

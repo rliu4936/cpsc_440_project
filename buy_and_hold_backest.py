@@ -67,7 +67,7 @@ def main():
 
     # Generate signals (can be dummy for training)
     signals = IndicatorSignals(price_data_single)
-    position_features = signals.generate_ma_cross_signal(short_window=10, long_window=30)
+    position_features = signals.generate_ema_cross_signal(short_window=10, long_window=30)
 
     # Backtrader setup
     cerebro = bt.Cerebro()
