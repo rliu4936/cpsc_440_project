@@ -132,34 +132,42 @@ After initial experiments, we removed features that rarely triggered (those that
 
 For labeling, we adopted a simple but effective rule: we labeled a day as a positive outcome (1) if the stock’s future 5-day return exceeded a chosen threshold (e.g., +2\%), and as a negative outcome (0) otherwise. This allowed us to frame our machine learning task as a binary classification problem, aiming to predict whether a stock is likely to rise substantially over the near term based on current technical indicators.
 
+% --- Discussion Section ---
 \section{Discussion}
-Currently, we are using technical indicators as our primary features because they are computationally efficient. We then apply a secondary layer of machine learning. However, solely relying on technical indicators can lead to overfitting, especially on a limited dataset like an index.
+Our analysis utilizes technical indicators as the primary features due to their computational efficiency. However, indicators that are solely based on price data tend to underperform in the long term in US stocks, as confirmed by existing literature. Relying exclusively on price-based indicators can lead to overfitting, particularly in a limited dataset like an index.
 
-To move forward, we propose the following next steps:
+This aligns with the broader literature on technical analysis, which suggests that strategies based solely on price data often struggle to outperform in efficient markets like the US. Given the sustained long-term growth of the US stock market, the buy-and-hold strategy may be more advantageous than attempting to time the market using purely technical indicators.
+
+To enhance the robustness of our analysis, we propose the following next steps:
 \begin{enumerate}
-    \item Apply our technical indicators and machine learning models across the entire S\&P 500 universe.
-    \item Aggregate the performance results to measure consistency across different stocks.
-    \item Generate additional features, such as volatility metrics, moving averages of volume, and relative strength indices.
-    \item Implement ensemble methods that combine signals from multiple models and indicators.
-    \item Use significance tests to validate whether observed returns are statistically meaningful.
-    \item Explore adding fundamental features (e.g., P/E ratio, earnings growth) in future extensions of this work.
-    \item This will also allow us to incorporate insights from asset pricing theory and broader financial principles, instead of purely relying on technical analysis.
+    \item Extend our models to the entire S\&P 500 universe, incorporating additional market factors beyond price data, such as volatility and fundamentals.
+    \item Evaluate performance consistency across different stocks and market conditions.
+    \item Develop new features such as volatility metrics, moving averages of volume, and relative strength indicators to improve predictive power.
+    \item Implement ensemble methods that combine the strengths of multiple models and indicators.
+    \item Conduct statistical significance tests to ensure that the observed returns are meaningful and not due to random chance.
+    \item Incorporate fundamental features such as P/E ratio and earnings growth to complement the technical analysis and improve model generalizability.
+    \item Explore deeper integration of asset pricing theory to inform the feature engineering and modeling process.
 \end{enumerate}
-This will make our analysis more robust and allow for a better understanding of indicator generalizability across different stocks and market conditions.
 
-yes 
+We have designed the codebase following best practices in object-oriented programming (OOP) to facilitate future extensions. We plan to explore clustering techniques for feature grouping, as well as experiment with different classifiers and labelers. Additionally, we will integrate more data from other stocks and expand the feature set to include additional market data.
 
+Given the consistent upward trend in US markets, it is more advantageous to stay invested in the long term rather than attempting to time the market using price-based technical indicators. However, this conclusion may not hold true for markets with different behaviors, such as Japan or the UK. The model's performance and strategies will continue to evolve as we expand our analysis and explore more advanced machine learning techniques.
 
-next steps:
+\section{Summary of Findings}
 
-we can preform clustering, for example, and train our ML indicator.
+\textbf{Performance Summary for 30 Test Tickers}:
+\begin{itemize}
+    \item \textbf{Average Total Return}: 5.28\%
+    \item \textbf{Average Buy-and-Hold Return}: 18.98\%
+\end{itemize}
 
+The performance results highlight that the buy-and-hold strategy significantly outperformed the model-based strategies across the 30 test tickers. While the model-generated returns were positive, they were generally smaller compared to the passive investment approach.
 
 \printbibliography
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+we 
 \appendix
 
 \section{Supplementary material} \label{app:info}
