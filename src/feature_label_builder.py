@@ -2,7 +2,7 @@
 import pandas as pd
 
 class FeatureLabelBuilder:
-    def __init__(self, feature_engineer_class, labeler_class, *labeler_args, **labeler_kwargs):
+    def __init__(self, feature_engineer_class, labeler):
         """
         Args:
             feature_engineer_class: A class that generates features (e.g., IndicatorSignals)
@@ -11,9 +11,7 @@ class FeatureLabelBuilder:
             labeler_kwargs: Additional keyword arguments for the labeler class constructor
         """
         self.feature_engineer_class = feature_engineer_class
-        self.labeler_class = labeler_class
-        self.labeler_args = labeler_args
-        self.labeler_kwargs = labeler_kwargs
+        self.labeler = labeler
 
     def build(self, df: pd.DataFrame):
         """
@@ -36,8 +34,7 @@ class FeatureLabelBuilder:
         signals = feature_engineer.get_signals()  # Call get_signals on the instance of the feature_engineer
 
         # Instantiate labeler with args and kwargs
-        labeler = self.labeler_class(*self.labeler_args, **self.labeler_kwargs)  # Create an instance of the labeler
-        labels = labeler.label(df)  # Call label on the instance of the labeler
+        labels = self.labeler.label(df)  # Call label on the instance of the labeler
 
         # Align signals with the labels and prepare the final DataFrame
         signals = signals.loc[labels.index]

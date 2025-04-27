@@ -6,7 +6,7 @@ from src.data_handler import DataHandler
 from src.indicator_signals import IndicatorSignals
 
 class LabeledDesignMatrixBuilder:
-    def __init__(self, tickers_csv, labeler_class, start_date="2000-01-03", end_date="2025-01-01"):
+    def __init__(self, tickers_csv, labeler, start_date="2000-01-03", end_date="2025-01-01"):
         """
         Initializes the LabeledDesignMatrixBuilder.
 
@@ -19,7 +19,7 @@ class LabeledDesignMatrixBuilder:
         self.tickers_csv = tickers_csv
         self.start_date = start_date
         self.end_date = end_date
-        self.labeler_class = labeler_class
+        self.labeler = labeler
 
     def build(self):
         """
@@ -45,7 +45,7 @@ class LabeledDesignMatrixBuilder:
                 continue
 
             # Generate features and labels using FeatureLabelBuilder
-            builder = FeatureLabelBuilder(IndicatorSignals, self.labeler_class)
+            builder = FeatureLabelBuilder(IndicatorSignals, self.labeler)
             X, y = builder.build(df)
 
             # Append results to lists
