@@ -3,16 +3,16 @@ import os
 import pandas as pd
 from src.feature_label_builder import FeatureLabelBuilder
 from src.data_handler import DataHandler
+from src.indicator_signals import IndicatorSignals
 
 class LabeledDesignMatrixBuilder:
-    def __init__(self, tickers_csv, labeler_class, feature_engineer_class, start_date="2000-01-03", end_date="2025-01-01"):
+    def __init__(self, tickers_csv, labeler_class, start_date="2000-01-03", end_date="2025-01-01"):
         """
         Initializes the LabeledDesignMatrixBuilder.
 
         Args:
             tickers_csv (str): Path to the CSV file containing the tickers.
             labeler_class (class): The class for the labeler (e.g., ForwardReturnLabeler).
-            feature_engineer_class (class): The class for the feature engineer (e.g., IndicatorSignals).
             start_date (str): The start date for data download.
             end_date (str): The end date for data download.
         """
@@ -20,7 +20,6 @@ class LabeledDesignMatrixBuilder:
         self.start_date = start_date
         self.end_date = end_date
         self.labeler_class = labeler_class
-        self.feature_engineer_class = feature_engineer_class
 
     def build(self):
         """
@@ -46,7 +45,7 @@ class LabeledDesignMatrixBuilder:
                 continue
 
             # Generate features and labels using FeatureLabelBuilder
-            builder = FeatureLabelBuilder(self.feature_engineer_class, self.labeler_class)
+            builder = FeatureLabelBuilder(IndicatorSignals, self.labeler_class)
             X, y = builder.build(df)
 
             # Append results to lists

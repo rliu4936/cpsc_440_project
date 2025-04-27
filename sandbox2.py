@@ -4,8 +4,7 @@ from src.labeled_design_matrix_builder import LabeledDesignMatrixBuilder
 
 builder = LabeledDesignMatrixBuilder(
     tickers_csv="data/valid_tickers.csv",  # Path to your valid_tickers.csv file
-    labeler_class=ForwardReturnLabeler,
-    feature_engineer_class=IndicatorSignals
+    labeler_class=ForwardReturnLabeler
 )
 
 X, y = builder.build()
