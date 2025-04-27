@@ -122,6 +122,16 @@ The list of tickers with sufficient historical data is stored in a separate file
 
 This selection process ensures that we can evaluate the robustness of trading strategies across a diverse set of stocks while minimizing data gaps.
 
+\section{Feature Engineering and Labeling}
+
+After selecting stocks with sufficient historical data, we engineered a rich set of technical indicator-based features to capture trend, momentum, volatility, and volume patterns.
+
+Initially, we constructed a set of features such as moving average crossovers, relative strength index (RSI) thresholds, and volume spikes. To further expand the feature space, we generated multiple variants of similar indicators with different window lengths and thresholds. This approach allowed us to capture different market dynamics, such as short-term versus long-term trends. We deliberately allowed feature duplication across different parameterizations, which increased feature diversity without relying on fundamentally different indicator types.
+
+After initial experiments, we removed features that rarely triggered (those that produced a positive signal less than 5\% of the time). This pruning step ensured that our feature set remained informative and avoided introducing sparse, noisy signals. The final dataset contains over 40 well-balanced signals that vary across trend, momentum, volatility, and price action categories.
+
+For labeling, we adopted a simple but effective rule: we labeled a day as a positive outcome (1) if the stock’s future 5-day return exceeded a chosen threshold (e.g., +2\%), and as a negative outcome (0) otherwise. This allowed us to frame our machine learning task as a binary classification problem, aiming to predict whether a stock is likely to rise substantially over the near term based on current technical indicators.
+
 \section{Discussion}
 Currently, we are using technical indicators as our primary features because they are computationally efficient. We then apply a secondary layer of machine learning. However, solely relying on technical indicators can lead to overfitting, especially on a limited dataset like an index.
 
@@ -138,6 +148,11 @@ To move forward, we propose the following next steps:
 This will make our analysis more robust and allow for a better understanding of indicator generalizability across different stocks and market conditions.
 
 yes 
+
+
+next steps:
+
+we can preform clustering, for example, and train our ML indicator.
 
 
 \printbibliography

@@ -11,7 +11,7 @@ class DataHandler:
     Now simplified to work with a single ticker at a time.
     """
 
-    def __init__(self, ticker, start_date, end_date):
+    def __init__(self, ticker,  start_date = "2000-01-03", end_date = "2025-01-01"):
         """
         Initializes the DataHandler for a single ticker.
         
@@ -23,6 +23,7 @@ class DataHandler:
         end_date : str
             The end date for downloading the data (format: "YYYY-MM-DD").
         """
+
         self.ticker = ticker
         self.start_date = start_date
         self.end_date = end_date
@@ -33,6 +34,7 @@ class DataHandler:
         Downloads financial data for the single ticker from Yahoo Finance
         within the specified date range and returns a dataframe with
         exactly the columns: date, close, high, low, open, volume.
+        If the local CSV file exists, load from it instead.
 
         Returns
         -------
@@ -40,7 +42,15 @@ class DataHandler:
             A pandas DataFrame with columns
             ['date', 'close', 'high', 'low', 'open', 'volume'].
         """
-        # Download data (disable auto-adjust so prices match raw values)
+        local_path = f"data/tickers/{self.ticker}.csv"
+
+        if os.path.exists(local_path):
+            print(f"[INFO] Loading cached data for {self.ticker}")
+            df = pd.read_csv(local_path, parse_dates=["date"])
+            self.data = df
+            return self.data
+
+        print(f"[INFO] Downloading data for {self.ticker}")
         df = yf.download(
             self.ticker,
             start=self.start_date,
@@ -48,19 +58,15 @@ class DataHandler:
             progress=False,
         )
 
-        # If yfinance returns a MultiIndex (old behavior), keep only the price level
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
 
-        # Keep only the necessary columns
         required_cols = ["Close", "High", "Low", "Open", "Volume"]
         missing = [col for col in required_cols if col not in df.columns]
         if missing:
             raise KeyError(f"Missing expected columns in download: {missing}")
 
         df = df[required_cols].copy()
-
-        # Move the index (date) into a column and rename columns to lowercase
         df.reset_index(inplace=True)
         df.columns = ["date", "close", "high", "low", "open", "volume"]
 
@@ -89,7 +95,13 @@ class DataHandler:
         """
         if self.data is None:
             raise ValueError("Data not downloaded yet. Call download_data() first.")
-        return bt.feeds.PandasData(dataname=self.data)
+        
+        # Ensure 'date' is datetime and set as index
+        df = self.data.copy()
+        df['date'] = pd.to_datetime(df['date'])
+        df.set_index('date', inplace=True)
+        
+        return bt.feeds.PandasData(dataname=df)
 
     def load_from_csv(self, filepath_prefix):
         """
@@ -115,10 +127,11 @@ if __name__ == "__main__":
     start_date = "2000-01-03"
     end_date = "2025-01-01"
     save_path = "data/tickers/"  # directory to save the CSVs
-    valid_tickers = []  # List to store valid tickers
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
+
+    valid_tickers = []  # List to store valid tickers
 
     for ticker in tickers:
         print(f"[INFO] Downloading data for {ticker}")
