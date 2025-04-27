@@ -6,17 +6,17 @@ from src.data_handler import DataHandler
 from src.indicator_signals import IndicatorSignals
 
 class LabeledDesignMatrixBuilder:
-    def __init__(self, tickers_csv, labeler, start_date="2000-01-03", end_date="2025-01-01"):
+    def __init__(self, tickers, labeler, start_date="2000-01-03", end_date="2025-01-01"):
         """
         Initializes the LabeledDesignMatrixBuilder.
 
         Args:
-            tickers_csv (str): Path to the CSV file containing the tickers.
-            labeler_class (class): The class for the labeler (e.g., ForwardReturnLabeler).
+            tickers (list): A list of tickers.
+            labeler (object): The instance of the labeler (e.g., ForwardReturnLabeler).
             start_date (str): The start date for data download.
             end_date (str): The end date for data download.
         """
-        self.tickers_csv = tickers_csv
+        self.tickers = tickers
         self.start_date = start_date
         self.end_date = end_date
         self.labeler = labeler
@@ -32,10 +32,7 @@ class LabeledDesignMatrixBuilder:
         X_list = []
         y_list = []
 
-        # Read valid tickers from the CSV
-        valid_tickers = pd.read_csv(self.tickers_csv)["Ticker"].tolist()
-
-        for ticker in valid_tickers:
+        for ticker in self.tickers:
             print(f"\n=== Processing {ticker} ===")
             handler = DataHandler(ticker, start_date=self.start_date, end_date=self.end_date)
             df = handler.download_data()
