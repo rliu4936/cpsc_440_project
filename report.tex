@@ -96,6 +96,32 @@ To provide further context, the moving average crossover strategy on the QQQ ind
 
 
 
+% --- Stock Selection and Filtering Section ---
+
+\section{Stock Selection and Filtering}
+
+To increase the generalizability and robustness of our model, we decided to expand our analysis from a single stock index (QQQ) to the broader S\&P 500 index. However, a key challenge was ensuring that all stocks in the S\&P 500 had sufficient data, particularly from January 1st, 2000, to avoid issues with incomplete historical data. 
+
+The process involved:
+\begin{itemize}
+    \item Downloading the tickers for the S\&P 500 from Wikipedia.
+    \item Filtering the tickers to only include those with data available since the start of 2000.
+    \item Storing the tickers with sufficient data in a separate file for further analysis.
+\end{itemize}
+
+After filtering, we were left with a dataset of 353 stocks that met the data availability criteria. This step helps ensure that our models are not overfitting to stocks with missing or sparse data. The resulting list of stocks was then used in our backtesting process.
+
+The list of tickers with sufficient historical data is stored in a separate file for future reference and to avoid re-fetching data in subsequent experiments.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{filtered_stocks_over_time.png}
+    \caption{Figure 3: Stocks filtered to include only those with data available from January 1st, 2000, for the backtesting process. The final list of stocks was reduced to 353.}
+    \label{fig:filtered_stocks}
+\end{figure}
+
+This selection process ensures that we can evaluate the robustness of trading strategies across a diverse set of stocks while minimizing data gaps.
+
 \section{Discussion}
 Currently, we are using technical indicators as our primary features because they are computationally efficient. We then apply a secondary layer of machine learning. However, solely relying on technical indicators can lead to overfitting, especially on a limited dataset like an index.
 
