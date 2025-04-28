@@ -6,23 +6,8 @@ from datetime import datetime
 
 
 class DataHandler:
-    """
-    A class responsible for downloading, processing, and managing financial market data for backtesting.
-    Now simplified to work with a single ticker at a time.
-    """
 
     def __init__(self, ticker,  start_date = "2000-01-03", end_date = "2025-01-01"):
-        """
-        Initializes the DataHandler for a single ticker.
-        
-        Args:
-        ticker : str
-            The ticker symbol for the stock to download.
-        start_date : str
-            The start date for downloading the data (format: "YYYY-MM-DD").
-        end_date : str
-            The end date for downloading the data (format: "YYYY-MM-DD").
-        """
 
         self.ticker = ticker
         self.start_date = start_date
@@ -30,18 +15,7 @@ class DataHandler:
         self.data = None
 
     def download_data(self):
-        """
-        Downloads financial data for the single ticker from Yahoo Finance
-        within the specified date range and returns a dataframe with
-        exactly the columns: date, close, high, low, open, volume.
-        If the local CSV file exists, load from it instead.
 
-        Returns
-        -------
-        pd.DataFrame
-            A pandas DataFrame with columns
-            ['date', 'close', 'high', 'low', 'open', 'volume'].
-        """
         local_path = f"data/tickers/{self.ticker}.csv"
 
         if os.path.exists(local_path):
@@ -74,25 +48,13 @@ class DataHandler:
         return self.data
 
     def save_to_csv(self, filepath_prefix):
-        """
-        Saves the downloaded data to a CSV file for the single ticker.
-        
-        Args:
-        filepath_prefix : str
-            The prefix for the CSV file (e.g., "data/ticker").
-        """
+
         if self.data is None:
             raise ValueError("No data to save. Call download_data() first.")
         self.data.to_csv(f"{filepath_prefix}.csv")
 
     def get_backtrader_data(self):
-        """
-        Prepares the data for usage in Backtrader by converting it into the appropriate format.
-        
-        Returns:
-        bt.feeds.PandasData
-            A Backtrader feed for the single ticker.
-        """
+
         if self.data is None:
             raise ValueError("Data not downloaded yet. Call download_data() first.")
         
@@ -103,17 +65,7 @@ class DataHandler:
         return bt.feeds.PandasData(dataname=df)
 
     def load_from_csv(self, filepath_prefix):
-        """
-        Loads the data from a CSV file for the single ticker.
-        
-        Args:
-        filepath_prefix : str
-            The prefix for the CSV file (e.g., "data/ticker").
-        
-        Returns:
-        pd.DataFrame
-            The loaded data for the single ticker.
-        """
+
         df = pd.read_csv(f"{filepath_prefix}_{self.ticker}.csv", index_col="Date", parse_dates=True)
         df['Ticker'] = self.ticker
         self.data = df.sort_index()
