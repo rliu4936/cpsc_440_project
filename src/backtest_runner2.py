@@ -16,8 +16,7 @@ class BacktestRunner:
         data = bt.feeds.PandasData(dataname=self.price_data)
         cerebro.adddata(data)
 
-        # Pass the signal features for decision making
-        cerebro.addstrategy(self._build_strategy_class(self.signal_features))  # Pass signal features directly
+        cerebro.addstrategy(self._build_strategy_class(self.signal_features))
         cerebro.broker.set_cash(self.initial_cash)
 
         strategies = cerebro.run(runonce=True)
@@ -28,17 +27,16 @@ class BacktestRunner:
         self.run()
 
     def _build_strategy_class(self, signal_features):
-        # Define the strategy class inside the function to accept the signal features
         class SignalBasedStrategy(bt.Strategy):
             def __init__(self):
-                self.feature_data = signal_features  # Accept feature_data argument
+                self.feature_data = signal_features
                 self.dataclose = self.datas[0].close
                 self.portfolio_values = []
                 self.trade_log = []
 
             def next(self):
                 current_dt = pd.Timestamp(self.datas[0].datetime.date(0))
-                target_position = self.feature_data.get(current_dt, 0)  # Get the position for the current date
+                target_position = self.feature_data.get(current_dt, 0)
                 cash = self.broker.getcash()
                 price = self.dataclose[0]
 
@@ -79,7 +77,6 @@ class BacktestRunner:
         return (daily_returns.mean() / daily_returns.std()) * np.sqrt(252)
 
     def get_buy_and_hold_return(self):
-        # Buy and hold assumes buying at the first price and holding until the last
         initial_price = self.price_data['close'].iloc[0]
         final_price = self.price_data['close'].iloc[-1]
         initial_investment = self.initial_cash

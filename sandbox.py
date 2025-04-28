@@ -76,11 +76,11 @@ for signal_name, counts in global_counts.items():
 summary_df = pd.DataFrame(summary_rows)
 summary_df = summary_df.sort_values("signal")
 
-# Print nicely
+
 print("\n=== Global Signal Summary Across All Tickers ===")
 print(summary_df)
 
-# Optional: save
+
 summary_df.to_csv("global_signal_summary.csv", index=False)
 
 X = pd.concat(X_list, axis=0)
