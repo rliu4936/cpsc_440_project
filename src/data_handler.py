@@ -3,16 +3,31 @@ import yfinance as yf
 import pandas as pd
 import backtrader as bt
 from datetime import datetime
-
-
 class DataHandler:
-
-    def __init__(self, ticker,  start_date = "2000-01-03", end_date = "2025-01-01"):
+    def __init__(self, ticker,  start_date = "2000-01-03", end_date = "2025-01-01", interval_param="1D"):
 
         self.ticker = ticker
         self.start_date = start_date
         self.end_date = end_date
         self.data = None
+        self.interval_param = interval_param
+
+    def generate_ar1_data(self, sigma=1.0, n_steps=1000, freq="1T", mu=0):
+        import numpy as np
+        import pandas as pd
+
+        eps = np.random.normal(loc=0, scale=sigma, size=n_steps)
+        x = [100]
+        for i in range(1, n_steps):
+            x.append((x[-1] + mu) + eps[i])
+
+        time_index = pd.date_range(start=pd.Timestamp.now(), periods=n_steps, freq=freq)
+        df = pd.DataFrame({"close": x}, index=time_index)
+        df["open"] = df["high"] = df["low"] = df["close"]
+        df["volume"] = 1000
+        df.index.name = "datetime"
+        self.data = df
+        return df
 
     def download_data(self):
 
@@ -25,11 +40,16 @@ class DataHandler:
             return self.data
 
         print(f"[INFO] Downloading data for {self.ticker}")
-        df = yf.download(
-            self.ticker,
+
+        from curl_cffi import requests
+
+        session = requests.Session(impersonate="chrome")
+        ticker_obj = yf.Ticker(self.ticker, session=session)
+
+        df = ticker_obj.history(
             start=self.start_date,
             end=self.end_date,
-            progress=False,
+            interval=self.interval_param,
         )
 
         if isinstance(df.columns, pd.MultiIndex):
@@ -42,8 +62,10 @@ class DataHandler:
 
         df = df[required_cols].copy()
         df.reset_index(inplace=True)
-        df.columns = ["date", "close", "high", "low", "open", "volume"]
-
+        df.columns = ["datetime", "close", "high", "low", "open", "volume"]
+        df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
+        df["datetime"] = df["datetime"].dt.tz_convert("Asia/Hong_Kong")
+        df.set_index("datetime", inplace=True)
         self.data = df
         return self.data
 
@@ -70,6 +92,8 @@ class DataHandler:
         df['Ticker'] = self.ticker
         self.data = df.sort_index()
         return self.data
+
+    
 
 
 if __name__ == "__main__":
@@ -101,3 +125,4 @@ if __name__ == "__main__":
     valid_tickers_df = pd.DataFrame(valid_tickers, columns=["Ticker"])
     valid_tickers_df.to_csv("data/valid_tickers.csv", index=False)
     print("[INFO] Saved valid tickers to data/valid_tickers.csv")
+   
