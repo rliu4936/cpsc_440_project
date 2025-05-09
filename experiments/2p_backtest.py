@@ -15,7 +15,7 @@ from src.indicator_signals import IndicatorSignals
 from src.plot_utils import plot_log_scale_equity, plot_strategy_vs_buyhold, plot_strategy_vs_buyhold_with_markers, plot_smoothed_return_contour
 from src.backtest_runner import BacktestRunner
 import backtrader as bt
-from src.ThresholdRebalanceStrategy import ThresholdRebalanceStrategy
+from src.ThresholdRebalanceStrategy import ThresholdRebalanceStrategy, testThresholdReblance
 
 
 
@@ -29,56 +29,56 @@ import backtrader as bt
 
 
 def main():
-    # Load data
-    backtest_ticker = "7552.HK" # long
-    # backtest_ticker = "7226.HK"
+    # # Load data
+    # backtest_ticker = "7552.HK" # long
+    # # backtest_ticker = "7226.HK"
 
-    # backtest_ticker = "TQQQ" # long
-    backtest_ticker = "QQQ" # long
+    # # backtest_ticker = "TQQQ" # long
+    # backtest_ticker = "QQQ" # long
+    # backtest_ticker = "2007.HK" # long
 
-    start_date = "2025-03-11"
+    backtest_tickers = ["003041.SZ", "301276.SZ", "688459.SS", "600639.SS", "605003.SS", "605288.SS", "600422.SS", "3380.HK", "600420.SS", "600380.SS", "600216.SS",
+                        "600256.SS", "600219.SS",
+                        # newly added
+    "600048.SS", "600518.SS", "000002.SZ", "601162.SS", "000988.SZ", "002555.SZ", "601088.SS", "600036.SS", "601006.SS", "600887.SS", "600585.SS"]
+
+    start_date = "2025-03-12"
     end_date = datetime.today().strftime("%Y-%m-%d")
-    handler = DataHandler(backtest_ticker, start_date=start_date, end_date=end_date, interval_param="5m")
-    price_data = handler.download_data()
+    buy_and_hold_per = 0
+     
+    actual_returns = []
+    buy_hold_returns = []
+    ticker_labels = []
+    for ticker in backtest_tickers:
+        result = testThresholdReblance(ticker, start_date, end_date, buy_and_hold_per, 0.98, 1.02, 0.2)
+        # Assuming testThresholdReblance returns (actual_return, buy_hold_return)
+        # If not, adapt this unpacking accordingly.
+        if result is not None and isinstance(result, (tuple, list)) and len(result) == 2:
+            actual_returns.append(result[0])
+            buy_hold_returns.append(result[1])
+            ticker_labels.append(ticker)
+        print()
 
-    #price_data = handler.generate_ar1_data(mu = 0.001, sigma=0.95, n_steps=3000)
-    debug_print("[DEBUG] price_data.head():\n", price_data.head())
-    debug_print("[DEBUG] price_data.columns:", price_data.columns)
+    import matplotlib.pyplot as plt
 
-    start_price = price_data['close'].iloc[0]
-    end_price = price_data['close'].iloc[-1]
-    buy_hold_return = (end_price - start_price) / start_price
-
-
-     # Backtrader setup
-    cerebro = bt.Cerebro()
-    data = bt.feeds.PandasData(dataname=price_data)
-    cerebro.adddata(data)
-    cerebro.addstrategy(
-        ThresholdRebalanceStrategy,
-        buy_threshold=0.98,
-        sell_threshold=1.02,
-        position_frac=0.10
-    )
-
-
-    cerebro.broker.set_cash(5000000)
-
-    print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
-    cerebro.run()
-    print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
-
-    # Portfolio statistics
-
-    start_value = cerebro.broker.startingcash + 5000000
-    end_value = cerebro.broker.getvalue() + (1 + buy_hold_return) * 5000000
-    
-    total_return = (end_value - start_value) / start_value
-
-    print(f"Total Return: {total_return * 100:.2f}%")
-    print(f"Buy and Hold Return: {buy_hold_return * 100:.2f}%")
-    cerebro.plot(style='candlestick')
-    
+    plt.figure(figsize=(6, 6))
+    plt.scatter(buy_hold_returns, actual_returns)
+    # Fit line of best fit without bias (force through origin)
+    x = np.array(buy_hold_returns)
+    y = np.array(actual_returns)
+    slope = np.dot(x, y) / np.dot(x, x)
+    y_pred = slope * x
+    plt.plot(x, y_pred, color='red', label=f'Best Fit (no bias): y = {slope:.2f}x')
+    plt.xlabel("Buy and Hold Return")
+    plt.ylabel("Strategy Return")
+    plt.plot([min(buy_hold_returns), max(buy_hold_returns)],
+            [min(buy_hold_returns), max(buy_hold_returns)],
+            linestyle='--', color='gray', label='y = x')
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.legend()
+    plt.title("Strategy vs Buy and Hold Returns")
+    plt.grid(True)
+    plt.show()
 
 if __name__ == "__main__":
     main()
